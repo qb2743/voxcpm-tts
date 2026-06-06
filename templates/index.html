@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>VoxCPM2 Voice Studio v1.3</title>
+<title>VoxCPM2 Voice Studio v{{ version }}</title>
 {% raw %}<style>
 :root{--bg:#ffffff;--bg2:#f8f9fa;--bg3:#f0f0f1;--tx:#1a1a2e;--td:#6b7280;--ac:#2563eb;--ac2:#1d4ed8;--gn:#059669;--rd:#dc2626;--br:#e5e7eb;--br2:#d1d5db}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -108,7 +108,7 @@ select{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%
 <div class="header">
   <div class="header-left">
     <img src="https://voxcpm.modelbest.cn/gradio_api/file=assets/voxcpm_logo.png" alt="VoxCPM" onerror="this.style.display='none'">
-  <div><h1>VoxCPM2 Voice Studio <span style="font-size:12px;color:var(--td);font-weight:400">v1.3</span></h1><div class="sub" data-i18n="header_sub">基于 ModelBest 在线语音合成服务 | modelbest.cn</div></div>
+  <div><h1>VoxCPM2 Voice Studio <span style="font-size:12px;color:var(--td);font-weight:400">v{{ version }}</span></h1><div class="sub" data-i18n="header_sub">基于 ModelBest 在线语音合成服务 | modelbest.cn</div></div>
   </div>
   <div class="lang-sw">
     <button data-lang="zh" class="active">中</button>
@@ -243,7 +243,7 @@ select{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%
 <div id="status" data-i18n="ready">就绪</div>
 {% raw %}<script>
 /* ======================================================================
-   VoxCPM2 Voice Studio v1.3
+   VoxCPM2 Voice Studio v1.4
    ====================================================================== */
 var I18N = {
   "zh": {

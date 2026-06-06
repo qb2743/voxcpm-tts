@@ -18,7 +18,7 @@ echo [OK] Python version:
 python --version
 echo.
 
-cd /d "%dp0"
+cd /d "%~dp0"
 
 echo [OK] Installing dependencies...
 python -m pip install -r requirements.txt --quiet
@@ -38,9 +38,15 @@ if %errorlevel% neq 0 (
 )
 
 if not exist voices mkdir voices
-dir /b voices\*.wav >nul 2>&1
-if %errorlevel% neq 0 (
-    echo [WARN] No .wav files in voices/ directory!
+set HAS_VOICE_AUDIO=0
+if exist "voices\*.wav" set HAS_VOICE_AUDIO=1
+if exist "voices\*.mp3" set HAS_VOICE_AUDIO=1
+if exist "voices\*.flac" set HAS_VOICE_AUDIO=1
+if exist "voices\*.m4a" set HAS_VOICE_AUDIO=1
+if exist "voices\*.aac" set HAS_VOICE_AUDIO=1
+if exist "voices\*.ogg" set HAS_VOICE_AUDIO=1
+if "%HAS_VOICE_AUDIO%"=="0" (
+    echo [WARN] No supported audio files in voices/ directory!
     echo        Please add reference audio files and edit config.yaml.
     echo.
 )

@@ -41,9 +41,11 @@ CONFIG_PATH = _app_dir() / "config.yaml"
 
 def load_config():
     with open(CONFIG_PATH, "r", encoding="utf-8") as f:
-        return yaml.safe_load(f)
+        return yaml.safe_load(f) or {}
 
 config = load_config()
+_config_mtime = CONFIG_PATH.stat().st_mtime if CONFIG_PATH.exists() else 0.0
+_config_lock = threading.Lock()
 BASE_DIR = CONFIG_PATH.parent
 MAX_CONCURRENT_GENERATIONS = int(
     os.environ.get(
@@ -68,6 +70,27 @@ OPENAI_PLACEHOLDER_VOICES = {
     "alloy", "ash", "ballad", "coral", "echo", "fable",
     "nova", "onyx", "sage", "shimmer", "verse",
 }
+
+
+def _reload_config_if_changed():
+    """Reload config.yaml when WebUI adds or removes voices."""
+    global config, _config_mtime
+    try:
+        current_mtime = CONFIG_PATH.stat().st_mtime
+    except FileNotFoundError:
+        return config
+
+    if current_mtime == _config_mtime:
+        return config
+
+    with _config_lock:
+        current_mtime = CONFIG_PATH.stat().st_mtime
+        if current_mtime == _config_mtime:
+            return config
+        config = load_config()
+        _config_mtime = current_mtime
+        logger.info("配置已重新加载: voices=%s", list(config.get("voices", {}).keys()))
+        return config
 
 def _case_insensitive_existing_path(path: Path) -> Path:
     """Return an existing path, allowing case-insensitive filename matches."""
@@ -111,7 +134,8 @@ def _voice_key_from_path(value: str) -> str:
 
 def _get_voice_config(voice: str):
     """Accept configured voice names and path-like voice values from OpenAI-compatible clients."""
-    voices = config.get("voices", {})
+    current_config = _reload_config_if_changed()
+    voices = current_config.get("voices", {})
     if voice in voices:
         return voice, voices[voice]
 
@@ -126,7 +150,7 @@ def _get_voice_config(voice: str):
 
     ref_audio_path = _resolve_ref(voice)
     if ref_audio_path.exists() and ref_audio_path.is_file():
-        defaults = config.get("clone_defaults", config.get("defaults", {}))
+        defaults = current_config.get("clone_defaults", current_config.get("defaults", {}))
         return ref_audio_path.stem, {
             "ref_audio": str(ref_audio_path),
             "cfg_value": defaults.get("cfg_value", 2.5),
@@ -330,10 +354,11 @@ class ModelsResponse(BaseModel):
 
 @app.get("/")
 async def root():
+    current_config = _reload_config_if_changed()
     return {
         "service": "VoxCPM2 OpenAI-compatible TTS API",
         "endpoints": ["/v1/audio/speech", "/v1/models"],
-        "voices": list(config["voices"].keys()),
+        "voices": list(current_config.get("voices", {}).keys()),
     }
 
 @app.get("/v1/models")
@@ -480,7 +505,8 @@ async def http_exception_handler(request: Request, exc: HTTPException):
 if __name__ == "__main__":
     server_cfg = config["server"]
     logger.info(f"启动 VoxCPM2 TTS API 服务器: http://{server_cfg['host']}:{server_cfg['port']}")
-    logger.info(f"可用声音: {list(config['voices'].keys())}")
+    logger.info(f"配置文件: {CONFIG_PATH}")
+    logger.info(f"可用声音: {list(config.get('voices', {}).keys())}")
     logger.info(f"VoxCPM2 服务: {config['voxcpm']['base_url']}")
 
     uvicorn.run(

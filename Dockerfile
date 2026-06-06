@@ -1,11 +1,11 @@
 ﻿# ============================================================
-# VoxCPM2 Voice Studio v1.3 - Docker Image
+# VoxCPM2 Voice Studio v1.4 - Docker Image
 # ============================================================
 FROM python:3.11-slim
 
 LABEL org.opencontainers.image.title="VoxCPM2 Voice Studio"
 LABEL org.opencontainers.image.description="Voice synthesis WebUI with voice cloning, voice design, and voice management. 中文：VoxCPM2 在线语音合成 WebUI，支持常规配音、声音设计、音色管理和 OpenAI 兼容 TTS API。"
-LABEL org.opencontainers.image.version="1.3"
+LABEL org.opencontainers.image.version="1.4"
 
 WORKDIR /app
 

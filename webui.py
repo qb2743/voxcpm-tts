@@ -1,4 +1,4 @@
-"""VoxCPM2 Web UI - Voice Studio v1.3 (Chinese, Gradio-style layout)"""
+"""VoxCPM2 Web UI - Voice Studio v1.4 (Chinese, Gradio-style layout)"""
 import logging, re, sys, threading, webbrowser, tempfile, uuid, time, io as _io
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
@@ -69,7 +69,7 @@ def _save_voice_file(safe_name: str, audio_bytes: bytes, ext: str = ".wav") -> P
     return audio_path
 
 
-def _add_voice_to_config(safe_name: str, ref_audio: str, prompt_text: str = ""):
+def _add_voice_to_config(safe_name: str, ref_audio: str, prompt_text: str = "", voice_type: str = "clone"):
     global voices_cfg, cfg
     new_voice = {
         "ref_audio": ref_audio,
@@ -78,7 +78,7 @@ def _add_voice_to_config(safe_name: str, ref_audio: str, prompt_text: str = ""):
         "do_normalize": clone_d.get("do_normalize", True),
         "denoise": clone_d.get("denoise", False),
         "prompt_text": prompt_text.strip(),
-        "type": "design_voice" if prompt_text.strip() else "clone",
+        "type": voice_type,
     }
     voices_cfg[safe_name] = new_voice
     cfg["voices"] = voices_cfg
@@ -94,7 +94,7 @@ clone_d = cfg.get("clone_defaults", cfg.get("defaults", {}))
 design_d = cfg.get("design_defaults", {})
 voxcpm_url = cfg.get("voxcpm", {}).get("base_url", "https://voxcpm.modelbest.cn")
 
-VERSION = "1.3"
+VERSION = "1.4"
 
 # ---- In-memory audio cache (no disk saving) ----
 _audio_cache: dict[str, bytes] = {}  # cache_key -> raw audio bytes
@@ -340,7 +340,7 @@ def api_save_designed_voice():
         return jsonify({"ok": False, "error": "请先试听生成声音，再保存为音色"})
 
     audio_path = _save_voice_file(safe_name, _audio_cache[cache_key], ".wav")
-    _add_voice_to_config(safe_name, f"voices/{safe_name}.wav", prompt_text)
+    _add_voice_to_config(safe_name, f"voices/{safe_name}.wav", prompt_text, voice_type="design_voice")
 
     logger.info("Designed voice saved: %s -> %s", safe_name, audio_path)
     return jsonify({"ok": True, "name": safe_name, "path": str(audio_path)})
@@ -435,7 +435,7 @@ def api_save_voice():
     uploaded.save(audio_path)
 
     _add_voice_to_config(safe_name, f"voices/{safe_name}{ext}",
-        request.form.get("prompt_text", "").strip())
+        request.form.get("prompt_text", "").strip(), voice_type="clone")
 
     logger.info("Voice saved: %s -> %s", safe_name, audio_path)
     return jsonify({"ok": True, "name": safe_name, "path": str(audio_path)})

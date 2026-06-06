@@ -1,4 +1,4 @@
-# VoxCPM2 Voice Studio v1.3
+# VoxCPM2 Voice Studio v1.4
 
 将 [VoxCPM2](https://voxcpm.modelbest.cn/) 在线语音合成服务封装为：
 - 兼容 OpenAI 的本地 TTS API（`server.py`）
@@ -32,10 +32,10 @@ WebUI 默认监听 `0.0.0.0:5000`。在服务器或 Docker 中使用时，请通
 
 普通 Windows 用户请优先下载 **Windows 免 Python 便携版**：
 
-`voxcpm-tts-v1.3-windows.zip`
+`voxcpm-tts-v1.4-windows.zip`
 
-1. 打开 [Releases](https://github.com/qb2743/voxcpm-tts/releases/tag/v1.3) 页面，在 **Assets** 中下载 `voxcpm-tts-v1.3-windows.zip`。
-2. 解压到英文路径目录，例如 `D:\Apps\voxcpm-tts-v1.3-windows`。
+1. 打开 [Releases](https://github.com/qb2743/voxcpm-tts/releases/tag/v1.4) 页面，在 **Assets** 中下载 `voxcpm-tts-v1.4-windows.zip`。
+2. 解压到英文路径目录，例如 `D:\Apps\voxcpm-tts-v1.4-windows`。
 3. 双击 `voxcpm-webui.exe` 启动 WebUI。
 4. 程序启动后通常会自动打开浏览器；如果没有自动打开，请手动访问 `http://127.0.0.1:5000`。
 5. 如果只想启动 OpenAI 兼容 TTS API，双击 `voxcpm-server.exe`，服务地址为 `http://localhost:7900/v1/audio/speech`。
@@ -48,11 +48,11 @@ WebUI 默认监听 `0.0.0.0:5000`。在服务器或 Docker 中使用时，请通
 - 如果程序无法启动，请在解压目录空白处右键打开终端，运行 `voxcpm-webui.exe` 查看错误提示。
 - 示例音色文件已包含在 `voices/` 目录中，可按需替换或新增自己的参考音频。
 
-`voxcpm-tts-v1.3.zip` 是源码包，需要电脑已安装 Python 3.10+，首次运行会联网安装 `requirements.txt` 中的依赖。
+`voxcpm-tts-v1.4.zip` 是源码包，需要电脑已安装 Python 3.10+，首次运行会联网安装 `requirements.txt` 中的依赖。
 
 ## Docker Hub 安装
 
-镜像：`qb2743/voxcpm-tts:1.3`
+镜像：`qb2743/voxcpm-tts:1.4`
 
 中文说明：这是一个基于 VoxCPM2 在线语音合成服务的 WebUI 和 OpenAI 兼容 TTS API。支持常规配音、声音设计、音色管理、极致克隆、长文本切分合成，并适合 Docker/VPS 部署。
 
@@ -74,7 +74,7 @@ cd voxcpm-tts
 ```yaml
 services:
   api:
-    image: qb2743/voxcpm-tts:1.3
+    image: qb2743/voxcpm-tts:1.4
     container_name: voxcpm-api
     ports:
       - "7900:7900"
@@ -91,7 +91,7 @@ services:
     restart: unless-stopped
 
   webui:
-    image: qb2743/voxcpm-tts:1.3
+    image: qb2743/voxcpm-tts:1.4
     container_name: voxcpm-webui
     ports:
       - "5000:5000"

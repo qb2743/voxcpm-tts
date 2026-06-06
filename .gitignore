@@ -13,6 +13,13 @@ output/
 presets/
 *.log
 
+# User-saved voices
+voices/*.wav
+voices/*.flac
+voices/*.m4a
+voices/*.aac
+voices/*.ogg
+
 # Build artifacts
 build/
 dist/

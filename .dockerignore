@@ -20,5 +20,11 @@ venv
 # Runtime/generated files
 output/
 presets/
+
+# Do not publish user-saved voices in Docker Hub images.
+voices/*
+!voices/.gitkeep
+!voices/dalao.MP3
+
 # Keep Flask templates in Docker image
 !templates/*.html
