@@ -1,0 +1,46 @@
+﻿clone_defaults:
+  cfg_value: 2.5
+  control_instruction: ''
+  denoise: false
+  dit_steps: 30
+  do_normalize: true
+  timeout: 300
+design_defaults:
+  cfg_value: 2.0
+  denoise: false
+  dit_steps: 10
+  do_normalize: true
+  timeout: 300
+server:
+  generation_retry_attempts: 3
+  generation_retry_initial_delay: 2.0
+  host: 0.0.0.0
+  max_concurrent_generations: 5
+  port: 7900
+text_split:
+  delimiters:
+  - 。
+  - ！
+  - ？
+  - ；
+  - '. '
+  - '! '
+  - '? '
+  - '; '
+  - "\n"
+  max_segment_chars: 500
+  max_concurrent_segments: 5
+  min_segment_chars: 2
+  pause_between_segments: 0.2
+voices:
+  dalao:
+    cfg_value: 2.5
+    denoise: false
+    dit_steps: 30
+    do_normalize: true
+    prompt_text: 家人们 你们现在还在手动拆解爆款文案吗 是不是太浪费时间了 一个小时拆一条视频 改写还费脑子 配音剪辑又要半天 直到我用了超级IP智能体
+      我告诉你 直接封神 一键扒光同行所有的爆款精髓 文案标题智能原创 数字人1:1还原你的形象 声音克隆 跟你开口的味道是一模一样 字幕BGM自动搞定 多平台批量发布
+      一天能够出上百条视频 如果你也想知道到底怎么操作 来我直播间我告诉你 接下来 来我直播间 现场 来我直播间 现场实操给你看
+    ref_audio: voices/dalao.MP3
+voxcpm:
+  base_url: https://voxcpm.modelbest.cn

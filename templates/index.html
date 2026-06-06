@@ -1,0 +1,842 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VoxCPM2 Voice Studio v1.3</title>
+{% raw %}<style>
+:root{--bg:#ffffff;--bg2:#f8f9fa;--bg3:#f0f0f1;--tx:#1a1a2e;--td:#6b7280;--ac:#2563eb;--ac2:#1d4ed8;--gn:#059669;--rd:#dc2626;--br:#e5e7eb;--br2:#d1d5db}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--tx);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif;min-height:100vh;padding-bottom:40px}
+.header{background:var(--bg);border-bottom:1px solid var(--br);padding:14px 28px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:14px}
+.header img{height:34px;border-radius:6px}
+.header h1{font-size:19px;color:var(--tx);font-weight:700}
+.header .sub{font-size:12px;color:var(--td);margin-top:2px}
+.tabs{display:flex;gap:0;background:var(--bg);border-bottom:1px solid var(--br);padding:0 28px}
+.tabs button{padding:10px 20px;border:none;border-bottom:2px solid transparent;background:transparent;color:var(--td);cursor:pointer;font-size:14px;transition:.2s;font-family:inherit}
+.tabs button.active{border-bottom-color:var(--ac);color:var(--ac);font-weight:600}
+.tabs button:hover{color:var(--tx)}
+.main{display:flex;gap:20px;padding:20px 28px;max-width:1200px;margin:0 auto}
+.left{flex:1;min-width:380px;display:flex;flex-direction:column;gap:14px}
+.right{flex:1;min-width:320px;display:flex;flex-direction:column;gap:14px}
+.card{background:var(--bg);border:1px solid var(--br);border-radius:10px;padding:16px}
+.card-title{font-size:14px;font-weight:600;margin-bottom:10px;color:var(--tx);display:flex;align-items:center;gap:6px}
+label{display:block;font-size:13px;color:var(--td);margin-bottom:5px;font-weight:500}
+input[type=text],textarea,select{width:100%;padding:9px 12px;background:var(--bg);border:1px solid var(--br2);border-radius:8px;color:var(--tx);font-size:14px;font-family:inherit;transition:.2s;outline:none}
+textarea{resize:vertical;min-height:80px;line-height:1.6}
+input[type=text]:focus,textarea:focus,select:focus{border-color:var(--ac);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+input[type=range]{width:100%;accent-color:var(--ac);margin:4px 0}
+select{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px}
+.toggle{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none}
+.toggle-track{width:42px;height:22px;background:var(--br2);border-radius:11px;position:relative;transition:.2s;flex-shrink:0}
+.toggle-track.on{background:var(--ac)}
+.toggle-knob{width:16px;height:16px;background:#fff;border-radius:50%;position:absolute;top:3px;left:3px;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.toggle-track.on .toggle-knob{left:23px}
+.upload-area{border:2px dashed var(--br2);border-radius:10px;padding:22px;text-align:center;cursor:pointer;transition:.2s;background:var(--bg2)}
+.upload-area:hover{border-color:var(--ac);background:rgba(37,99,235,.03)}
+.upload-area .icon{font-size:26px;margin-bottom:6px;display:block}
+.upload-area .text{font-size:13px;color:var(--td)}
+.upload-area .file{font-size:12px;color:var(--ac);margin-top:6px;display:none;font-weight:500}
+.upload-area.has-file .file{display:block}
+.btn{padding:10px 22px;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;transition:.2s;display:inline-flex;align-items:center;gap:8px;font-family:inherit}
+.btn-primary{background:var(--ac);color:#fff;width:100%;justify-content:center;padding:12px;font-size:15px}
+.btn-primary:hover{background:var(--ac2)}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed}
+.btn-sm{padding:5px 12px;font-size:12px;border-radius:6px}
+.btn-outline{background:var(--bg);border:1px solid var(--br2);color:var(--tx)}
+.btn-outline:hover{background:var(--bg2)}
+.btn-danger{background:var(--rd);color:#fff}
+.btn-danger:hover{opacity:.85}
+.btn-success{background:var(--gn);color:#fff}
+.btn-success:hover{opacity:.85}
+.accordion{border:1px solid var(--br);border-radius:10px;overflow:hidden;margin-bottom:10px}
+.accordion-header{background:var(--bg2);padding:13px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:600;color:var(--tx);user-select:none;transition:.2s}
+.accordion-header:hover{background:var(--bg3)}
+.accordion-header .arrow{transition:.2s;font-size:10px;color:var(--td)}
+.accordion.open .accordion-header .arrow{transform:rotate(180deg)}
+.accordion-body{display:none;padding:16px;background:var(--bg)}
+.accordion.open .accordion-body{display:block}
+.result{display:none}
+.progress-wrap{height:4px;background:var(--br);border-radius:2px;overflow:hidden;margin-top:8px;display:none}
+.progress-wrap.show{display:block}
+.progress-bar{height:100%;width:0;background:var(--ac);animation:pg 1.8s ease-in-out infinite}
+@keyframes pg{0%{width:0%}50%{width:68%}100%{width:100%}}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.chip{padding:5px 12px;background:var(--bg2);border:1px solid var(--br);border-radius:16px;cursor:pointer;font-size:12px;color:var(--td);transition:.2s}
+.chip:hover{background:var(--bg3);color:var(--tx);border-color:var(--ac)}
+.info-text{font-size:12px;color:var(--td);margin-top:4px;line-height:1.5}
+.slider-row{display:flex;align-items:center;gap:10px;margin:8px 0}
+.slider-row .val{min-width:36px;text-align:right;font-size:13px;color:var(--ac);font-weight:600}
+.slider-row .mini{font-size:12px;color:var(--td);min-width:60px}
+.audio-player{background:var(--bg2);border-radius:8px;padding:10px;text-align:center}
+.audio-player audio{width:100%;border-radius:6px;margin-bottom:8px}
+.audio-placeholder{color:var(--td);font-size:13px;padding:36px 0;text-align:center}
+.audio-placeholder .icon{font-size:36px;display:block;margin-bottom:8px}
+.audio-player .result-info{margin-top:6px;font-size:12px;color:var(--td)}
+.audio-player .result-info.error{color:var(--rd)}
+.audio-player .btn-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:4px}
+.voice-select-row{display:flex;gap:8px;align-items:center}
+.voice-select-row select{flex:1}
+.voice-select-row .btn-sm{flex-shrink:0}
+#status{background:var(--bg2);border-top:1px solid var(--br);padding:6px 28px;font-size:12px;color:var(--td);position:fixed;bottom:0;width:100%;z-index:10}
+.md-content{font-size:13px;color:var(--td);line-height:1.8}
+.md-content p{margin:4px 0}
+.md-content strong{color:var(--tx)}
+.md-content code{background:var(--bg3);padding:2px 6px;border-radius:4px;font-size:12px;color:var(--ac)}
+.md-content ul{padding-left:18px;margin:4px 0}
+.md-content li{margin:2px 0}
+.voice-row{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--bg2);border:1px solid var(--br);border-radius:8px;margin-bottom:6px}
+.voice-row .name{font-size:13px;color:var(--tx);font-weight:600}
+.voice-row .desc{font-size:12px;color:var(--td)}
+.lang-sw{display:flex;align-items:center;gap:4px;background:var(--bg2);border:1px solid var(--br);border-radius:8px;overflow:hidden;flex-shrink:0}
+.lang-sw button{padding:6px 12px;border:none;background:transparent;cursor:pointer;font-size:12px;color:var(--td);transition:.2s;font-family:inherit;white-space:nowrap}
+.lang-sw button.active{background:var(--ac);color:#fff}
+.lang-sw button:hover:not(.active){background:var(--bg3);color:var(--tx)}
+.header-left{display:flex;align-items:center;gap:14px;justify-self:center;grid-column:2;text-align:center}
+.lang-sw{justify-self:end;grid-column:3}
+#tab-synth{max-width:1440px;align-items:flex-start;gap:24px}
+#tab-synth>.left,#tab-synth>.right{flex:0 0 calc(50% - 12px);min-width:0}
+#tab-synth .left{padding-right:2px}
+#tab-synth .right{padding-left:2px}
+#tab-synth textarea{min-height:150px}
+#tab-synth .accordion{margin-bottom:0}
+@media(max-width:980px){#tab-synth{flex-direction:column}#tab-synth>.left,#tab-synth>.right{flex:1 1 auto;width:100%;min-width:auto;padding-left:0;padding-right:0}}
+@media(max-width:800px){.main{flex-direction:column}.left,.right{min-width:auto}}
+</style>{% endraw %}
+</head>
+<body>
+<div class="header">
+  <div class="header-left">
+    <img src="https://voxcpm.modelbest.cn/gradio_api/file=assets/voxcpm_logo.png" alt="VoxCPM" onerror="this.style.display='none'">
+  <div><h1>VoxCPM2 Voice Studio <span style="font-size:12px;color:var(--td);font-weight:400">v1.3</span></h1><div class="sub" data-i18n="header_sub">基于 ModelBest 在线语音合成服务 | modelbest.cn</div></div>
+  </div>
+  <div class="lang-sw">
+    <button data-lang="zh" class="active">中</button>
+    <button data-lang="en">EN</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="active" data-i18n="tab_synth" onclick="showTab('synth')">常规配音</button>
+  <button data-i18n="tab_design" onclick="showTab('design')">声音设计</button>
+  <button data-i18n="tab_voices" onclick="showTab('voices')">音色管理</button>
+</div>
+<div class="main" id="tab-synth">
+  <div class="left">
+    <div class="card">
+      <div class="card-title" data-i18n="sel_voice">🎭 选择音色</div>
+      <div class="voice-select-row">
+        <select id="voice-sel" onchange="onVoiceChange()"></select>
+        <button class="btn btn-sm btn-outline" id="voice-preview-btn" onclick="previewVoice()" title="试听音色">🔊 试听</button>
+      </div>
+      <div class="info-text" id="ref-info" style="margin-top:6px"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" data-i18n="ref_audio_title">🎤 参考音频 <span style="font-weight:400;font-size:12px;color:var(--td)" data-i18n="ref_audio_sub">— 上传用于克隆</span></div>
+      <div class="upload-area" id="upload-area" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropFile(event)" onclick="document.getElementById('ref-file').click()">
+        <span class="icon">📁</span>
+        <span class="text" data-i18n="upload_hint">点击上传参考音频，或拖拽到此处</span>
+        <span class="file" id="file-name"></span>
+        <input type="file" id="ref-file" accept="audio/*" style="display:none" onchange="onFileSelected(this)">
+      </div>
+      <div id="ref-audio-preview" style="display:none;margin-top:10px">
+        <audio id="ref-audio-player" controls style="width:100%;max-height:36px;border-radius:6px"></audio>
+      </div>
+    </div>
+
+    <div class="card" id="save-voice-card" style="display:none">
+      <div class="card-title" data-i18n="save_as_voice">💾 保存为新音色</div>
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <input type="text" id="new-voice-name" data-i18n-placeholder="voice_name_ph" placeholder="音色名称" style="flex:1">
+        <button class="btn btn-outline" onclick="saveNewVoice()" data-i18n="save_btn">保存</button>
+      </div>
+      <label data-i18n="ref_content_label">参考音频内容 <small data-i18n="ref_content_sub">（极致克隆时使用，可选）</small></label>
+      <input type="text" id="new-voice-prompt" data-i18n-placeholder="ref_content_ph" placeholder="参考音频说了什么？用于极致克隆的文本">
+      <div class="info-text" id="save-result" style="margin-top:6px"></div>
+    </div>
+
+    <div class="card">
+      <div class="toggle" onclick="toggleUltimate()" style="margin-bottom:12px">
+        <div class="toggle-track" id="toggle-track"><div class="toggle-knob"></div></div>
+        <div><div style="font-weight:600" data-i18n="ultimate_mode">🎙️ 极致克隆模式</div><div class="info-text" data-i18n="ultimate_desc">开启后使用参考音频文本进行精准克隆。</div></div>
+      </div>
+      <div id="prompt-section" style="display:none">
+        <label data-i18n="prompt_text_label">参考音频内容文本</label>
+        <input type="text" id="prompt-text" data-i18n-placeholder="prompt_text_ph" placeholder="参考音频的文字内容 …">
+        <div style="margin-top:6px"><button class="btn btn-sm btn-outline" onclick="autoTranscribe()" data-i18n="asr_btn">🔍 自动识别 (ASR)</button></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" data-i18n="target_text">✍️ Target Text — 输入要合成的文本</div>
+      <textarea id="text-input" rows="6" data-i18n-placeholder="text_ph" placeholder="在此输入要合成语音的文本内容 …">你好，这是VoxCPM2语音合成测试。</textarea>
+    </div>
+
+    <div style="margin-bottom:10px">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:400;text-transform:none;font-size:13px;color:var(--td)">
+        <input type="checkbox" id="long-text" checked style="accent-color:var(--ac);width:16px;height:16px"> <span data-i18n="long_text">长文本自动切分（逐句配音后拼接）</span>
+      </label>
+    </div>
+    <button class="btn btn-primary" id="gen-btn" data-i18n="start_gen" onclick="doGenerate()">🔊 开始生成</button>
+    <div class="progress-wrap" id="pg"><div class="progress-bar"></div></div>
+  </div>
+
+  <div class="right">
+    <div class="card"><div class="card-title" data-i18n="gen_result">🔊 生成结果</div>
+      <div class="audio-player" id="audio-player"><div class="audio-placeholder"><span class="icon">🎵</span><span data-i18n="gen_placeholder">点击"开始生成"后音频在此播放</span></div></div>
+    </div>
+
+    <div class="accordion open" id="adv-accordion">
+      <div class="accordion-header" data-i18n="adv_settings" onclick="toggleAccordion('adv-accordion')">⚙️ 高级设置 <span class="arrow">▼</span></div>
+      <div class="accordion-body">
+        <label class="toggle" style="margin-bottom:12px" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropFile(event)" onclick="document.getElementById('denoise').click()">
+          <input type="checkbox" id="denoise" style="display:none">
+          <div class="toggle-track" id="denoise-track"><div class="toggle-knob"></div></div><span data-i18n="denoise_label">参考音频降噪增强</span>
+        </label>
+        <label class="toggle" style="margin-bottom:14px" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropFile(event)" onclick="document.getElementById('normalize').click()">
+          <input type="checkbox" id="normalize" checked style="display:none">
+          <div class="toggle-track" id="normalize-track"><div class="toggle-knob"></div></div><span data-i18n="normalize_label">文本规范化</span>
+        </label>
+        <div class="slider-row"><span class="mini">CFG</span><input type="range" id="cfg" min="1" max="3" step="0.1" value="2.5" oninput="document.getElementById('cfg-val').textContent=this.value"><span class="val" id="cfg-val">2.5</span></div>
+        <div class="info-text" data-i18n="cfg_info">越高 → 越贴合参考音色；越低 → 更自由</div>
+        <div class="slider-row" style="margin-top:12px"><span class="mini" data-i18n="steps_label">步数</span><input type="range" id="steps" min="1" max="50" step="1" value="30" oninput="document.getElementById('steps-val').textContent=this.value"><span class="val" id="steps-val">30</span></div>
+        <div class="info-text" data-i18n="steps_info">越高 → 质量更好但更慢</div>
+      </div>
+    </div>
+
+    <div class="accordion"><div class="accordion-header" onclick="toggleAccordion(this.parentElement)" data-i18n="three_methods">📖 使用方式 <span class="arrow">▼</span></div><div class="accordion-body"><div class="md-content"><p data-i18n-html="method_sd">🎨 <strong>声音设计</strong> — 在声音设计页描述目标音色，试听满意后保存为音色。</p><p style="margin-top:8px" data-i18n-html="method_uc">🎙️ <strong>常规配音</strong> — 选择保存好的音色，输入文本后生成配音。</p></div></div></div>
+    <div class="accordion"><div class="accordion-header" onclick="toggleAccordion(this.parentElement)" data-i18n="param_guide">⚙️ 参数指南 <span class="arrow">▼</span></div><div class="accordion-body"><div class="md-content"><p data-i18n-html="pg_cfg"><strong>CFG:</strong> 越高越贴合 / 越低越自由。起点: 2.0</p><p data-i18n-html="pg_steps"><strong>步数:</strong> 越高质量越好 / 越低越快。起点: 10</p><p data-i18n-html="pg_tip"><strong>口诀:</strong> 不像→加CFG；粗糙→加步数；太慢→降步数</p></div></div></div>
+  </div>
+</div>
+<div class="main" id="tab-design" style="display:none">
+  <div class="left">
+    <div class="card">
+      <div class="card-title" data-i18n="design_studio">🎨 声音设计工作室</div>
+      <p class="info-text" style="margin-bottom:14px" data-i18n="design_intro">无需参考音频，不开启极致克隆。用声音描述和试听文本直接生成设计音色。</p>
+      <div class="chips"><span class="chip" onclick="fillDesign(this.textContent)" data-i18n="chip_1">温柔的女声，略带沙哑</span><span class="chip" onclick="fillDesign(this.textContent)" data-i18n="chip_2">低沉磁性的男声，新闻风格</span><span class="chip" onclick="fillDesign(this.textContent)" data-i18n="chip_3">活泼少女声线，元气满满</span><span class="chip" onclick="fillDesign(this.textContent)" data-i18n="chip_4">沉稳中年男性，纪录片旁白</span></div>
+      <label data-i18n="design_desc_label">声音描述</label><input type="text" id="design-desc" data-i18n-placeholder="design_desc_ph" placeholder="描述音色特征 …" style="margin-bottom:12px">
+      <label data-i18n="design_text_label">试听文本</label><input type="text" id="design-text" data-i18n-placeholder="design_text_val" value="你好，这是我为你设计的声音，听起来怎么样？">
+    </div>
+    <button class="btn btn-primary" id="design-btn" data-i18n="design_preview" onclick="doDesign()">🎧 试听预览</button>
+    <button class="btn btn-outline" style="width:100%;margin-top:8px" data-i18n="save_designed_voice_btn" onclick="saveDesignedVoice()">💾 保存为音色</button>
+    <div class="progress-wrap" id="design-pg"><div class="progress-bar"></div></div>
+  </div>
+  <div class="right">
+    <div class="card"><div class="card-title" data-i18n="design_result">🔊 试听结果</div>
+      <div class="audio-player" id="design-player"><div class="audio-placeholder"><span class="icon">🎵</span><span data-i18n="design_placeholder">点击试听预览后播放</span></div></div>
+    </div>
+    <div class="card">
+      <div class="card-title" data-i18n="voice_examples">💡 声音描述示例</div>
+      <div class="md-content">
+        <p><strong data-i18n="ex1_title">示例 1 — 温柔夜话</strong><br><code>Control Instruction</code>: <span data-i18n="ex1_control">年轻女性，声线温柔松弛，带磁性，语速偏慢</span><br><code>Target Text</code>: <span data-i18n="ex1_text">如果你也还没睡，就把今天那些乱七八糟的情绪先放一放。</span><br><button class="btn btn-sm btn-outline" onclick="fillDesignExample('ex1_control','ex1_text')" data-i18n="use_example">填入</button></p>
+        <p style="margin-top:12px"><strong data-i18n="ex2_title">示例 2 — 热血解说</strong><br><code>Control Instruction</code>: <span data-i18n="ex2_control">年轻男声，情绪高涨，语速快，爆发力强</span><br><code>Target Text</code>: <span data-i18n="ex2_text">来了来了！这一波直接开团，对面后排瞬间蒸发！</span><br><button class="btn btn-sm btn-outline" onclick="fillDesignExample('ex2_control','ex2_text')" data-i18n="use_example">填入</button></p>
+        <p style="margin-top:12px"><strong data-i18n="ex3_title">示例 3 — 深宫太后</strong><br><code>Control Instruction</code>: <span data-i18n="ex3_control">中老年女性，声音低沉阴冷，语速缓慢而有力，字字深思熟虑，带有深不可测的城府与威慑感。</span><br><code>Target Text</code>: <span data-i18n="ex3_text">哀家在这深宫待了四十年，什么风浪没见过？你以为瞒得过哀家？</span><br><button class="btn btn-sm btn-outline" onclick="fillDesignExample('ex3_control','ex3_text')" data-i18n="use_example">填入</button></p>
+        <p style="margin-top:12px"><strong data-i18n="ex4_title">示例 4 — 暴躁驾校教练</strong><br><code>Control Instruction</code>: <span data-i18n="ex4_control">暴躁的中年男声，语速快，充满无奈和愤怒</span><br><code>Target Text</code>: <span data-i18n="ex4_text">踩离合！踩刹车啊！你往哪儿开呢？前面是树你看不见吗？我教了你八百遍了，打死方向盘！你是不是想把车给我开到沟里去？</span><br><button class="btn btn-sm btn-outline" onclick="fillDesignExample('ex4_control','ex4_text')" data-i18n="use_example">填入</button></p>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="main" id="tab-voices" style="display:none">
+  <div style="width:100%"><div class="card"><div class="card-title" data-i18n="voice_mgr">🎤 音色管理</div><div id="voice-mgr-list"><p style="color:var(--td)" data-i18n="voice_mgr_loading">加载中...</p></div></div></div>
+</div>
+<div id="status" data-i18n="ready">就绪</div>
+{% raw %}<script>
+/* ======================================================================
+   VoxCPM2 Voice Studio v1.3
+   ====================================================================== */
+var I18N = {
+  "zh": {
+    "header_sub": "基于 ModelBest 在线语音合成服务 | modelbest.cn",
+    "tab_synth": "常规配音",
+    "tab_design": "声音设计",
+    "tab_voices": "音色管理",
+    "sel_voice": "🎭 选择音色",
+    "preview_voice": "🔊 试听",
+    "preview_title": "试听音色",
+    "pause": "⏸ 暂停",
+    "resume": "▶ 继续",
+    "ref_audio_title": "🎤 参考音频",
+    "ref_audio_sub": "— 上传用于克隆",
+    "upload_hint": "点击上传参考音频，或拖拽到此处",
+    "save_as_voice": "💾 保存为新音色",
+    "voice_name_ph": "音色名称",
+    "save_btn": "保存",
+    "ref_content_label": "参考音频内容",
+    "ref_content_sub": "（极致克隆时使用，可选）",
+    "ref_content_ph": "参考音频说了什么？用于极致克隆的文本",
+    "ultimate_mode": "🎙️ 极致克隆模式",
+    "ultimate_desc": "开启后使用参考音频文本进行精准克隆。",
+    "prompt_text_label": "参考音频内容文本",
+    "prompt_text_ph": "参考音频的文字内容 …",
+    "asr_btn": "🔍 自动识别 (ASR)",
+    "target_text": "✍️ Target Text — 输入要合成的文本",
+    "text_ph": "在此输入要合成语音的文本内容 …",
+    "long_text": "长文本自动切分（逐句配音后拼接）",
+    "start_gen": "🔊 开始生成",
+    "gen_result": "🔊 生成结果",
+    "gen_placeholder": "点击「开始生成」后音频在此播放",
+    "adv_settings": "⚙️ 高级设置",
+    "denoise_label": "参考音频降噪增强",
+    "normalize_label": "文本规范化",
+    "cfg_info": "越高 → 越贴合参考音色；越低 → 更自由",
+    "steps_label": "步数",
+    "steps_info": "越高 → 质量更好但更慢",
+    "three_methods": "📖 使用方式",
+    "method_sd": "🎨 <strong>声音设计</strong> — 在声音设计页描述目标音色，试听满意后保存为音色。",
+    "method_uc": "🎙️ <strong>常规配音</strong> — 选择保存好的音色，输入文本后生成配音。",
+    "voice_examples": "💡 声音描述示例",
+    "ex1_title": "示例 1 — 温柔夜话",
+    "ex1_control": "年轻女性，声线温柔松弛，带磁性，语速偏慢",
+    "ex1_text": "如果你也还没睡，就把今天那些乱七八糟的情绪先放一放。",
+    "ex2_title": "示例 2 — 热血解说",
+    "ex2_control": "年轻男声，情绪高涨，语速快，爆发力强",
+    "ex2_text": "来了来了！这一波直接开团，对面后排瞬间蒸发！",
+    "ex3_title": "示例 3 — 深宫太后",
+    "ex3_control": "中老年女性，声音低沉阴冷，语速缓慢而有力，字字深思熟虑，带有深不可测的城府与威慑感。",
+    "ex3_text": "哀家在这深宫待了四十年，什么风浪没见过？你以为瞒得过哀家？",
+    "ex4_title": "示例 4 — 暴躁驾校教练",
+    "ex4_control": "暴躁的中年男声，语速快，充满无奈和愤怒",
+    "ex4_text": "踩离合！踩刹车啊！你往哪儿开呢？前面是树你看不见吗？我教了你八百遍了，打死方向盘！你是不是想把车给我开到沟里去？",
+    "use_example": "填入",
+    "param_guide": "⚙️ 参数指南",
+    "pg_cfg": "<strong>CFG:</strong> 越高越贴合 / 越低越自由。起点: 2.0",
+    "pg_steps": "<strong>步数:</strong> 越高质量越好 / 越低越快。声音设计起点: 10",
+    "pg_tip": "<strong>口诀:</strong> 不像→加CFG；粗糙→加步数；太慢→降步数",
+    "voice_mgr": "🎤 音色管理",
+    "voice_mgr_loading": "展开加载...",
+    "design_studio": "🎨 声音设计工作室",
+    "design_intro": "无需参考音频，不开启极致克隆。用声音描述和试听文本直接生成设计音色。",
+    "chip_1": "温柔的女声，略带沙哑",
+    "chip_2": "低沉磁性的男声，新闻风格",
+    "chip_3": "活泼少女声线，元气满满",
+    "chip_4": "沉稳中年男性，纪录片旁白",
+    "design_desc_label": "声音描述",
+    "design_desc_ph": "描述音色特征 …",
+    "design_text_label": "试听文本",
+    "design_text_val": "你好，这是我为你设计的声音，听起来怎么样？",
+    "design_preview": "🎧 试听预览",
+    "save_designed_voice_btn": "💾 保存为音色",
+    "design_result": "🔊 试听结果",
+    "design_placeholder": "点击试听预览后播放",
+    "no_clones": "暂无通过参考音频保存的音色。",
+    "delete": "删除",
+    "download": "⬇ 下载",
+    "ready": "就绪",
+    "processing": "处理中...",
+    "gen_status": "正在生成 ...",
+    "gen_done": "完成: ",
+    "gen_failed": "生成失败",
+    "design_status": "正在设计声音 ...",
+    "design_done": "设计完成: ",
+    "design_failed": "设计失败",
+    "save_voice_status": "正在保存音色 ...",
+    "voice_saved": "音色已保存: ",
+    "save_failed": "保存失败",
+    "asr_status": "正在自动识别 ...",
+    "asr_done": "识别完成",
+    "asr_failed": "识别失败",
+    "asr_alert": "ASR 识别失败",
+    "error": "错误",
+    "err_input_text": "请输入要合成的文本",
+    "err_select_voice": "请选择音色",
+    "err_voice_name": "请输入音色名称",
+    "err_upload_audio": "请先上传参考音频",
+    "err_design_desc": "请输入声音描述",
+    "err_design_voice_name": "音色名称:",
+    "err_save_designed_voice": "请先试听生成声音，再保存为音色",
+    "confirm_del_voice": "确认删除音色 \"${name}\"？此操作不可恢复。",
+    "voice_deleted": "已删除",
+    "alert_voice_saved": "音色 ${name} 已保存！",
+    "alert_saved": "已保存为音色！",
+    "status_preview": "试听: ",
+    "status_paused": "已暂停: ",
+    "generated": "已生成: ",
+    "segments": " 段"
+  },
+  "en": {
+    "header_sub": "Powered by ModelBest Online TTS | modelbest.cn",
+    "tab_synth": "Synthesis",
+    "tab_design": "Voice Design",
+    "tab_voices": "Voices",
+    "sel_voice": "🎭 Select Voice",
+    "preview_voice": "🔊 Preview",
+    "preview_title": "Preview voice",
+    "pause": "⏸ Pause",
+    "resume": "▶ Resume",
+    "ref_audio_title": "🎤 Reference Audio",
+    "ref_audio_sub": "— Upload for cloning",
+    "upload_hint": "Click to upload or drag & drop reference audio here",
+    "save_as_voice": "💾 Save as New Voice",
+    "voice_name_ph": "Voice name",
+    "save_btn": "Save",
+    "ref_content_label": "Reference Audio Content",
+    "ref_content_sub": "(used in Ultimate Clone mode, optional)",
+    "ref_content_ph": "What does the reference audio say? For ultimate cloning.",
+    "ultimate_mode": "🎙️ Ultimate Clone Mode",
+    "ultimate_desc": "When enabled, cloning uses the reference audio text for higher fidelity.",
+    "prompt_text_label": "Reference Audio Transcription",
+    "prompt_text_ph": "Reference audio text content …",
+    "asr_btn": "🔍 Auto ASR",
+    "target_text": "✍️ Target Text",
+    "text_ph": "Enter text to synthesize …",
+    "long_text": "Auto-split long text (sentence-by-sentence with concatenation)",
+    "start_gen": "🔊 Generate",
+    "gen_result": "🔊 Result",
+    "gen_placeholder": "Click \"Generate\" to hear audio here",
+    "adv_settings": "⚙️ Advanced Settings",
+    "denoise_label": "Reference audio denoising",
+    "normalize_label": "Text normalization",
+    "cfg_info": "Higher → closer to reference; Lower → more freedom",
+    "steps_label": "Steps",
+    "steps_info": "Higher → better quality but slower",
+    "three_methods": "📖 Workflow",
+    "method_sd": "🎨 <strong>Voice Design</strong> — Describe a target voice, preview it, then save it as a voice.",
+    "method_uc": "🎙️ <strong>Synthesis</strong> — Select a saved voice, enter text, and generate speech.",
+    "voice_examples": "💡 Voice Description Examples",
+    "ex1_title": "Example 1 — Gentle Night Talk",
+    "ex1_control": "Young female, gentle voice with a bit of huskiness, slow pace",
+    "ex1_text": "If you're still awake, let go of all those messy emotions from today.",
+    "ex2_title": "Example 2 — Hype Commentary",
+    "ex2_control": "Young male, energetic, fast pace, explosive delivery",
+    "ex2_text": "Here we go! Engaging the enemy team directly, their backline is gone in an instant!",
+    "ex3_title": "Example 3 — Palace Empress Dowager",
+    "ex3_control": "Older female voice, low and cold, slow but forceful, every word carefully weighed, intimidating and unreadable.",
+    "ex3_text": "I have spent forty years in this palace. What storm have I not seen? Did you think you could hide it from me?",
+    "ex4_title": "Example 4 — Angry Driving Instructor",
+    "ex4_control": "Irritable middle-aged male voice, fast pace, full of helplessness and anger",
+    "ex4_text": "Clutch! Brake! Where are you driving? There is a tree ahead, can you not see it? I have told you hundreds of times, turn the wheel all the way!",
+    "use_example": "Use",
+    "param_guide": "⚙️ Parameter Guide",
+    "pg_cfg": "<strong>CFG:</strong> Higher = closer to reference / Lower = more freedom. Start: 2.0",
+    "pg_steps": "<strong>Steps:</strong> Higher = better quality / Lower = faster. Voice design starts at 10",
+    "pg_tip": "<strong>Tip:</strong> Not similar → increase CFG; Rough → increase steps; Slow → decrease steps",
+    "voice_mgr": "🎤 Voice Manager",
+    "voice_mgr_loading": "Expand to load...",
+    "design_studio": "🎨 Voice Design Studio",
+    "design_intro": "No reference audio and no ultimate clone mode. Generate a designed voice from the description and preview text.",
+    "chip_1": "Gentle female voice, slightly husky",
+    "chip_2": "Deep magnetic male voice, news anchor style",
+    "chip_3": "Lively young girl voice, full of energy",
+    "chip_4": "Calm middle-aged male, documentary narration",
+    "design_desc_label": "Voice Description",
+    "design_desc_ph": "Describe voice characteristics …",
+    "design_text_label": "Preview Text",
+    "design_text_val": "Hello, this is the voice I designed for you. How does it sound?",
+    "design_preview": "🎧 Preview",
+    "save_designed_voice_btn": "💾 Save as Voice",
+    "design_result": "🔊 Preview Result",
+    "design_placeholder": "Click Preview to hear audio here",
+    "no_clones": "No cloned voices saved yet.",
+    "delete": "Delete",
+    "download": "⬇ Download",
+    "ready": "Ready",
+    "processing": "Processing...",
+    "gen_status": "Generating ...",
+    "gen_done": "Done: ",
+    "gen_failed": "Generation failed",
+    "design_status": "Designing voice ...",
+    "design_done": "Design complete: ",
+    "design_failed": "Design failed",
+    "save_voice_status": "Saving voice ...",
+    "voice_saved": "Voice saved: ",
+    "save_failed": "Save failed",
+    "asr_status": "Transcribing ...",
+    "asr_done": "Transcription complete",
+    "asr_failed": "Transcription failed",
+    "asr_alert": "ASR transcription failed",
+    "error": "Error",
+    "err_input_text": "Please enter text to synthesize",
+    "err_select_voice": "Please select a voice",
+    "err_voice_name": "Please enter a voice name",
+    "err_upload_audio": "Please upload reference audio first",
+    "err_design_desc": "Please enter a voice description",
+    "err_design_voice_name": "Voice name:",
+    "err_save_designed_voice": "Please preview a designed voice before saving",
+    "confirm_del_voice": "Confirm deletion of voice \"${name}\"? This cannot be undone.",
+    "voice_deleted": "Deleted",
+    "alert_voice_saved": "Voice ${name} saved!",
+    "alert_saved": "Saved as voice!",
+    "status_preview": "Preview: ",
+    "status_paused": "Paused: ",
+    "generated": "Generated: ",
+    "segments": " segments"
+  }
+};
+
+var lang = "zh";
+
+function t(key) {
+  var d = I18N[lang];
+  return (d && d[key] !== undefined) ? d[key] : (I18N["zh"][key] || key);
+}
+
+function setLang(l) {
+  lang = l;
+  try { localStorage.setItem("voxcpm_lang", l); } catch(e) {}
+  var btns = document.querySelectorAll(".lang-sw button");
+  btns.forEach(function(b) { b.classList.toggle("active", b.dataset.lang === l); });
+  document.documentElement.lang = l === "zh" ? "zh-CN" : "en";
+  applyI18n();
+  if (voiceData && voiceData.length) onVoiceChange();
+  else if (typeof loadVoices === "function") loadVoices();
+}
+
+function detectLang() {
+  try { var s = localStorage.getItem("voxcpm_lang"); if (s === "zh" || s === "en") return s; } catch(e) {}
+  var nav = (navigator.language || navigator.userLanguage || "").toLowerCase();
+  if (nav.startsWith("zh")) return "zh";
+  return "en";
+}
+
+function applyI18n() {
+  var els = document.querySelectorAll("[data-i18n]");
+  els.forEach(function(el) { var k = el.getAttribute("data-i18n"); if (k) el.textContent = t(k); });
+  var phs = document.querySelectorAll("[data-i18n-placeholder]");
+  phs.forEach(function(el) { var k = el.getAttribute("data-i18n-placeholder"); if (k) el.placeholder = t(k); });
+  var titles = document.querySelectorAll("[data-i18n-title]");
+  titles.forEach(function(el) { var k = el.getAttribute("data-i18n-title"); if (k) el.title = t(k); });
+  var htmls = document.querySelectorAll("[data-i18n-html]");
+  htmls.forEach(function(el) { var k = el.getAttribute("data-i18n-html"); if (k) el.innerHTML = t(k); });
+}
+
+var voiceData=[],ultimateOn=false,asrRunning=false,currentRefFile=null,lastDesignCacheKey=null;
+
+function setStatus(s){var e=document.getElementById("status");if(e)e.textContent=s}
+
+function showTab(n){
+  var tabs={synth:"tab-synth",design:"tab-design",voices:"tab-voices"};
+  for(var key in tabs){var e=document.getElementById(tabs[key]);if(e)e.style.display=key===n?"flex":"none"}
+  var btns=document.querySelectorAll(".tabs button");
+  var names=["synth","design","voices"];
+  for(var i=0;i<names.length;i++){if(btns[i])btns[i].classList.toggle("active",names[i]===n)}
+  if(n==="voices")loadVoiceManager();
+}
+
+async function api(url,opts){
+  opts=opts||{};
+  var r=await fetch(url,opts),txt=await r.text(),d=null;
+  try{d=txt?JSON.parse(txt):{}}catch(e){
+    throw new Error("HTTP "+r.status+" "+(r.statusText||"")+" - "+txt.slice(0,160).replace(/\s+/g," "));
+  }
+  if(!r.ok)throw new Error((d&&d.error)||r.statusText);
+  return d;
+}
+
+function onFileSelected(input){
+  var f=input.files[0];if(!f)return;
+  handleRefFileSelected(f);
+}
+
+function getRefFile(){var rf=document.getElementById("ref-file");return currentRefFile||(rf?rf.files[0]:null)}
+
+function dragOver(e){e.preventDefault();e.stopPropagation();var ua=document.getElementById("upload-area");if(ua)ua.style.borderColor="var(--ac)"}
+function dragLeave(e){e.preventDefault();var ua=document.getElementById("upload-area");if(ua)ua.style.borderColor=""}
+function dropFile(e){
+  e.preventDefault();e.stopPropagation();
+  var ua=document.getElementById("upload-area");if(ua)ua.style.borderColor="";
+  var f=e.dataTransfer.files[0];if(!f)return;
+  document.getElementById("ref-file").files=e.dataTransfer.files;
+  handleRefFileSelected(f);
+}
+
+function handleRefFileSelected(f){
+  currentRefFile=f;
+  var url=URL.createObjectURL(f);
+  var ap=document.getElementById("ref-audio-player");if(ap)ap.src=url;
+  var pv=document.getElementById("ref-audio-preview");if(pv)pv.style.display="block";
+  var fn=document.getElementById("file-name");if(fn){fn.textContent=f.name;fn.style.display="block"}
+  var ua=document.getElementById("upload-area");
+  if(ua)ua.classList.add("has-file");
+  var sc=document.getElementById("save-voice-card");if(sc)sc.style.display="block";
+  var nv=document.getElementById("new-voice-name");if(nv)nv.value=f.name.replace(/\.[^.]+$/,"");
+  ensureUltimateOn();
+  var pt=document.getElementById("prompt-text");if(pt){pt.value="";pt.placeholder=t("asr_status")}
+  autoTranscribe(true,f);
+}
+
+function toggleUltimate(){
+  ultimateOn=!ultimateOn;
+  var t_=document.getElementById("toggle-track");if(t_)t_.classList.toggle("on",ultimateOn);
+  var ps=document.getElementById("prompt-section");if(ps)ps.style.display=ultimateOn?"block":"none";
+}
+
+function ensureUltimateOn(){
+  if(!ultimateOn)toggleUltimate();
+}
+
+function initToggles(){
+  ["denoise","normalize"].forEach(function(id){
+    var cb=document.getElementById(id),tk=document.getElementById(id+"-track");
+    if(tk&&cb){tk.classList.toggle("on",cb.checked);cb.onchange=function(){if(tk)tk.classList.toggle("on",cb.checked)}}
+  });
+}
+
+function setToggle(id,checked){
+  var cb=document.getElementById(id),tk=document.getElementById(id+"-track");
+  if(cb)cb.checked=!!checked;
+  if(tk)tk.classList.toggle("on",!!checked);
+}
+
+async function loadVoices(){
+  try{var d=await api("/api/voices");voiceData=d.voices||[]}catch(e){voiceData=[]}
+  var s=document.getElementById("voice-sel");if(!s)return;s.innerHTML="";
+  for(var i=0;i<voiceData.length;i++){s.innerHTML+='<option value="'+i+'">'+voiceData[i].name+" ("+voiceData[i].type+")</option>"}
+  if(voiceData.length)onVoiceChange();
+  initToggles();
+}
+
+function onVoiceChange(){
+  var i=parseInt(document.getElementById("voice-sel").value),v=voiceData[i]||{};
+  document.getElementById("ref-info").textContent=(v.ref_audio||"-");
+  var cfgEl=document.getElementById("cfg"),cfgVal=document.getElementById("cfg-val");
+  if(cfgEl)cfgEl.value=v.cfg_value||2.5;if(cfgVal)cfgVal.textContent=v.cfg_value||2.5;
+  var stEl=document.getElementById("steps"),stVal=document.getElementById("steps-val");
+  if(stEl)stEl.value=v.dit_steps||30;if(stVal)stVal.textContent=v.dit_steps||30;
+  setToggle("denoise",!!v.denoise);
+  setToggle("normalize",v.do_normalize!==false);
+  document.getElementById("prompt-text").value=v.prompt_text||"";
+  var pbtn = document.getElementById("voice-preview-btn");
+  if(pbtn) pbtn.disabled = !(v.ref_audio && v.ref_audio.length > 0);
+  // Reset preview button text and stop any playing audio when switching voices
+  if(pbtn) pbtn.innerHTML = t("preview_voice");
+  if(_voicePreviewAudio && !_voicePreviewAudio.paused){
+    _voicePreviewAudio.pause();
+    _voicePreviewAudio.currentTime = 0;
+  }
+}
+
+var _voicePreviewAudio = null;
+
+// i18n helper for confirm/alert messages with simple variable substitution
+function tm(key, vars) {
+  var s = t(key);
+  if (vars) { for (var k in vars) { s = s.replace("${" + k + "}", vars[k]); } }
+  return s;
+}
+
+function previewVoice(){
+  var i=parseInt(document.getElementById("voice-sel").value);
+  var v=voiceData[i];
+  if(!v||!v.ref_audio){return}
+  var url="/api/voice-preview/"+i;
+  if(!_voicePreviewAudio){
+    _voicePreviewAudio = new Audio();
+    _voicePreviewAudio.controls = false;
+    _voicePreviewAudio.style.display = "none";
+    document.body.appendChild(_voicePreviewAudio);
+    _voicePreviewAudio.addEventListener("ended", function(){
+      var btn = document.getElementById("voice-preview-btn");
+      if(btn) btn.innerHTML = t("preview_voice");
+    });
+    _voicePreviewAudio.addEventListener("pause", function(){
+      // Only reset button if the audio wasn't intentionally paused (e.g. ended)
+    });
+  }
+  // If already playing the same voice, pause
+  if(!_voicePreviewAudio.paused && _voicePreviewAudio.src.indexOf(url) >= 0){
+    _voicePreviewAudio.pause();
+    document.getElementById("voice-preview-btn").innerHTML = t("resume");
+    setStatus(t("status_paused")+v.name);
+    return;
+  }
+  // If paused and same voice, resume
+  if(_voicePreviewAudio.src.indexOf(url) >= 0 && _voicePreviewAudio.currentTime > 0 && _voicePreviewAudio.currentTime < _voicePreviewAudio.duration){
+    _voicePreviewAudio.play().catch(function(e){console.warn("Voice preview resume failed:",e)});
+    document.getElementById("voice-preview-btn").innerHTML = t("pause");
+    setStatus(t("status_preview")+v.name);
+    return;
+  }
+  // Otherwise start fresh
+  _voicePreviewAudio.src = url;
+  _voicePreviewAudio.load();
+  _voicePreviewAudio.play().catch(function(e){console.warn("Voice preview play failed:",e)});
+  document.getElementById("voice-preview-btn").innerHTML = t("pause");
+  setStatus(t("status_preview")+v.name);
+}
+
+function toggleBtn(id,pgId,loading){
+  var b=document.getElementById(id);if(!b)return;
+  if(loading){b.dataset.orig=b.textContent;b.textContent=t("processing");b.disabled=true}
+  else{b.textContent=b.dataset.orig||b.textContent;b.disabled=false}
+  var p=document.getElementById(pgId);if(p)p.classList.toggle("show",loading);
+}
+
+function showAudioResult(playerId, ok, message, audioUrl, fileName){
+  var p=document.getElementById(playerId);if(!p)return;
+  if(ok && audioUrl){
+    var dlName = fileName || "audio.wav";
+    p.innerHTML =
+      '<audio controls src="'+audioUrl+'"></audio>' +
+      '<div class="result-info">'+message+'</div>' +
+      '<div class="btn-row">' +
+        '<a href="'+audioUrl+'" download="'+dlName+'" class="btn btn-sm btn-success">'+t("download")+'</a>' +
+      '</div>';
+  }else if(ok){
+    p.innerHTML = '<div class="audio-placeholder"><span class="icon">🎵</span>'+message+'</div>';
+  }else{
+    p.innerHTML =
+      '<div class="audio-placeholder"><span class="icon">❌</span></div>' +
+      '<div class="result-info error">'+message+'</div>';
+  }
+}
+
+async function doGenerate(){
+  var txt=document.getElementById("text-input").value.trim();
+  if(!txt){alert(t("err_input_text"));return}
+  var vi=parseInt(document.getElementById("voice-sel").value);
+  if(isNaN(vi)||!voiceData[vi]){alert(t("err_select_voice"));return}
+  toggleBtn("gen-btn","pg",true);setStatus(t("gen_status"));
+  showAudioResult("audio-player",false,"","",null);
+  try{
+    var form=new FormData();form.append("text",txt);form.append("voice_index",vi);
+    form.append("cfg",parseFloat(document.getElementById("cfg").value));
+    form.append("steps",parseInt(document.getElementById("steps").value));
+    form.append("denoise",document.getElementById("denoise").checked);
+    form.append("normalize",document.getElementById("normalize").checked);
+    form.append("ultimate",ultimateOn);
+    form.append("long_text",document.getElementById("long-text").checked);
+    if(ultimateOn)form.append("prompt_text",document.getElementById("prompt-text").value.trim());
+    var rf=getRefFile();if(rf)form.append("ref_audio",rf);
+    var d=await api("/api/generate",{method:"POST",body:form});
+    if(d.ok){
+      var msg = t("generated")+d.file+"  |  "+d.size + (d.segments>1?"  |  "+d.segments+t("segments"):"");
+      showAudioResult("audio-player",true,msg,d.audio_url,d.file);
+      setStatus(t("gen_done")+d.file);
+    }else{
+      showAudioResult("audio-player",false,"",d.error,null);
+      setStatus(t("gen_failed"));
+    }
+  }catch(e){
+    showAudioResult("audio-player",false,"",e.message,null);
+    setStatus(t("error"));
+  }
+  toggleBtn("gen-btn","pg",false);
+}
+
+function fillDesign(t){document.getElementById("design-desc").value=t;lastDesignCacheKey=null}
+
+function fillDesignExample(controlKey,textKey){
+  document.getElementById("design-desc").value=t(controlKey);
+  document.getElementById("design-text").value=t(textKey);
+  lastDesignCacheKey=null;
+}
+
+async function doDesign(){
+  var desc=document.getElementById("design-desc").value.trim();
+  if(!desc){alert(t("err_design_desc"));return}
+  lastDesignCacheKey=null;
+  toggleBtn("design-btn","design-pg",true);setStatus(t("design_status"));
+  showAudioResult("design-player",false,"","",null);
+  try{
+    var form=new FormData();form.append("desc",desc);
+    form.append("text",document.getElementById("design-text").value.trim());
+    var d=await api("/api/design",{method:"POST",body:form});
+    if(d.ok){
+      lastDesignCacheKey=d.cache_key||null;
+      var msg = t("status_preview")+d.file+"  |  "+d.size;
+      showAudioResult("design-player",true,msg,d.audio_url,d.file);
+      setStatus(t("design_done")+d.file);
+    }else{
+      showAudioResult("design-player",false,"",d.error,null);
+      setStatus(t("design_failed"));
+    }
+  }catch(e){
+    showAudioResult("design-player",false,"",e.message,null);
+    setStatus(t("error"));
+  }
+  toggleBtn("design-btn","design-pg",false);
+}
+
+async function saveNewVoice(){
+  var name=document.getElementById("new-voice-name").value.trim();
+  if(!name){alert(t("err_voice_name"));return}
+  var rf=getRefFile();if(!rf){alert(t("err_upload_audio"));return}
+  var pt=document.getElementById("new-voice-prompt").value.trim();
+  setStatus(t("save_voice_status"));
+  try{
+    var form=new FormData();form.append("audio",rf);form.append("name",name);
+    if(pt)form.append("prompt_text",pt);
+    var d=await api("/api/save-voice",{method:"POST",body:form});
+    if(d.ok){
+      document.getElementById("save-result").textContent=t("save_btn")+": "+d.name;
+      setStatus(t("voice_saved")+d.name);alert(tm("alert_voice_saved",{name:d.name}));loadVoices();
+    }else{document.getElementById("save-result").textContent=d.error;setStatus(t("save_failed"))}
+  }catch(e){document.getElementById("save-result").textContent=e.message;setStatus(t("save_failed"))}
+}
+
+async function saveDesignedVoice(){
+  if(!lastDesignCacheKey){alert(t("err_save_designed_voice"));return}
+  var name=prompt(t("err_design_voice_name"));if(!name)return;
+  try{
+    var payload={
+      name:name,
+      cache_key:lastDesignCacheKey,
+      prompt_text:document.getElementById("design-text").value.trim()
+    };
+    var d=await api("/api/save-designed-voice",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+    if(d.ok){alert(t("alert_saved"));loadVoices()}else alert(d.error);
+  }catch(e){alert(e.message)}
+}
+
+async function loadVoiceManager(){
+  var el=document.getElementById("voice-mgr-list");if(!el)return;
+  try{
+    var d=await api("/api/voices");var vs=d.voices||[];
+    var clones=vs.filter(function(v){return v.type==="clone"||v.type==="design_voice"});
+    if(!clones.length){el.innerHTML='<p style="color:var(--td)">'+t("no_clones")+'</p>';return}
+    var h="";
+    clones.forEach(function(v){
+      h+='<div class="voice-row"><div><div class="name">'+v.name+'</div><div class="desc">Ref: '+v.ref_audio+'</div></div>';
+      h+='<button class="btn btn-danger btn-sm" onclick="deleteVoice(\''+v.name+'\')">'+t("delete")+'</button></div>';
+    });
+    el.innerHTML=h;
+  }catch(e){el.innerHTML='<p style="color:var(--rd)">'+t("error")+': '+e.message+'</p>'}
+}
+
+async function deleteVoice(name){
+  if(!confirm(tm("confirm_del_voice",{name:name})))return;
+  try{
+    var d=await api("/api/delete-voice",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:name})});
+    if(d.ok){alert(t("voice_deleted")+": "+d.name);loadVoices();loadVoiceManager()}else alert(d.error);
+  }catch(e){alert(e.message)}
+}
+
+function toggleAccordion(id){
+  var el=typeof id==="string"?document.getElementById(id):id.closest(".accordion");
+  if(el)el.classList.toggle("open");
+}
+
+async function autoTranscribe(silent,file){
+  var rf=file||getRefFile();if(!rf){alert(t("err_upload_audio"));return}
+  if(asrRunning)return;
+  asrRunning=true;
+  setStatus(t("asr_status"));
+  try{
+    var form=new FormData();form.append("audio",rf);
+    var d=await api("/api/asr",{method:"POST",body:form});
+    if(d.ok&&d.text){var pt=document.getElementById("prompt-text");if(pt){pt.value=d.text;pt.placeholder=t("prompt_text_ph")}setStatus(t("asr_done"))}
+    else{var pt2=document.getElementById("prompt-text");if(pt2)pt2.placeholder=t("prompt_text_ph");var msg=d.error||t("asr_alert");setStatus(t("asr_failed")+": "+msg);if(!silent)alert(msg)}
+  }catch(e){var pt3=document.getElementById("prompt-text");if(pt3)pt3.placeholder=t("prompt_text_ph");setStatus(t("asr_failed")+": "+e.message);if(!silent)alert(e.message)}
+  finally{asrRunning=false}
+}
+
+(function(){
+  lang = detectLang();
+  document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
+  var btns = document.querySelectorAll(".lang-sw button");
+  btns.forEach(function(b) { b.classList.toggle("active", b.dataset.lang === lang); });
+  btns.forEach(function(b) {
+    b.addEventListener("click", function() { setLang(this.dataset.lang); });
+  });
+  applyI18n();
+  // Set design-text value via placeholder translation
+  var dt = document.getElementById("design-text");
+  if (dt && dt.dataset.i18nPlaceholder) dt.value = t(dt.dataset.i18nPlaceholder);
+  loadVoices();
+})();
+
+</script>{% endraw %}
+</body>
+</html>
+

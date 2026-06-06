@@ -1,0 +1,24 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+.venv
+venv
+
+# IDE
+.vscode
+.idea
+*.swp
+
+# Temporary
+*.bat
+
+# Runtime/generated files
+output/
+presets/
+# Keep Flask templates in Docker image
+!templates/*.html
