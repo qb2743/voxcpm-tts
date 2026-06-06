@@ -14,6 +14,7 @@ import subprocess
 import tempfile
 import threading
 import time
+import sys
 from pathlib import Path
 from typing import Optional
 
@@ -30,7 +31,13 @@ from voxcpm_client import VoxCPM2Client
 # ---------------------------------------------------------------------------
 # 配置加载
 # ---------------------------------------------------------------------------
-CONFIG_PATH = Path(__file__).parent / "config.yaml"
+def _app_dir() -> Path:
+    if getattr(sys, "frozen", False):
+        return Path(sys.executable).parent.resolve()
+    return Path(__file__).parent.resolve()
+
+
+CONFIG_PATH = _app_dir() / "config.yaml"
 
 def load_config():
     with open(CONFIG_PATH, "r", encoding="utf-8") as f:

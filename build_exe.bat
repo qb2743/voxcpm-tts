@@ -15,7 +15,7 @@ echo Building server.exe...
 pyinstaller --onefile --name voxcpm-server --add-data "config.yaml;." --add-data "voices;voices" server.py
 
 echo Building webui.exe...
-pyinstaller --onefile --name voxcpm-webui --add-data "config.yaml;." --add-data "voices;voices" webui.py
+pyinstaller --onefile --name voxcpm-webui --add-data "config.yaml;." --add-data "voices;voices" --add-data "templates;templates" webui.py
 
 echo.
 echo Done! Check the dist/ folder.

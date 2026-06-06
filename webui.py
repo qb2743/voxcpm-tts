@@ -4,6 +4,11 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from pathlib import Path
 
+def _app_dir() -> Path:
+    if getattr(sys, "frozen", False):
+        return Path(sys.executable).parent.resolve()
+    return Path(__file__).parent.resolve()
+
 def _ensure_deps():
     for pkg_name, mod_name in [("flask", "flask"), ("pyyaml", "yaml")]:
         try: __import__(mod_name)
@@ -20,7 +25,7 @@ import yaml
 import socket
 
 # ---- paths ---------------------------------------------------------------
-D = Path(__file__).parent.resolve()
+D = _app_dir()
 CC = D / "config.yaml"
 OD = D / "output"
 OD.mkdir(parents=True, exist_ok=True)
@@ -116,7 +121,7 @@ def _voice_list():
     return r
 
 # ---- Flask app ----------------------------------------------------------
-app = Flask(__name__)
+app = Flask(__name__, template_folder=str(D / "templates"))
 
 @app.route("/")
 def index():

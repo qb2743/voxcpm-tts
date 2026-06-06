@@ -1,0 +1,25 @@
+VoxCPM2 Voice Studio v1.3 - Windows 免 Python 便携版
+
+使用方法：
+
+1. 解压整个压缩包到英文路径目录，例如 D:\Apps\voxcpm-tts-v1.3-windows。
+2. 双击 voxcpm-webui.exe 启动网页界面。
+3. 程序启动后会自动打开浏览器；如果没有自动打开，请手动访问：
+   http://127.0.0.1:5000
+4. 如果只想启动 OpenAI 兼容 TTS API，请双击 voxcpm-server.exe。
+   API 地址：http://localhost:7900/v1/audio/speech
+
+目录说明：
+
+- config.yaml：配置文件，可修改默认参数和音色配置。
+- voices：音色参考音频目录，示例音色已包含在里面。
+- templates：WebUI 页面模板，请保留。
+- output：运行后生成的输出目录。
+
+注意事项：
+
+- 这个版本已经内置 Python 运行时和 Python 依赖，电脑无需另外安装 Python。
+- 语音生成仍然需要联网访问 VoxCPM2 在线服务。
+- 如需 MP3、Opus、AAC、FLAC 等格式转换，请安装 ffmpeg；WAV 输出不需要 ffmpeg。
+- 第一次启动 exe 可能需要等待数秒，Windows Defender 也可能进行扫描。
+- 如果程序无法启动，请在当前目录空白处右键打开终端，运行 voxcpm-webui.exe 查看错误提示。
