@@ -130,17 +130,6 @@ docker compose down
 
 WebUI 容器已设置 `AUTO_OPEN_BROWSER=0`，适合 Docker 和 VPS 环境，不会尝试在容器内打开浏览器。
 
-### 发布到 Docker Hub
-
-在项目根目录执行：
-
-```bash
-docker build -t qb2743/voxcpm-tts:1.3 .
-docker push qb2743/voxcpm-tts:1.3
-```
-
-Docker Hub 页面上的 Overview/Description 不会因为 `docker push` 自动更新。需要在 Docker Hub 仓库页面的描述区域粘贴本 README 的 Docker Hub 安装说明，或者在后续接入自动同步 README 的发布流程。
-
 ## API 示例
 
 ### cURL
