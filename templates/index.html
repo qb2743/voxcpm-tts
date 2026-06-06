@@ -158,10 +158,10 @@ select{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%
 
     <div class="card">
       <div class="toggle" onclick="toggleUltimate()" style="margin-bottom:12px">
-        <div class="toggle-track" id="toggle-track"><div class="toggle-knob"></div></div>
+        <div class="toggle-track on" id="toggle-track"><div class="toggle-knob"></div></div>
         <div><div style="font-weight:600" data-i18n="ultimate_mode">🎙️ 极致克隆模式</div><div class="info-text" data-i18n="ultimate_desc">开启后使用参考音频文本进行精准克隆。</div></div>
       </div>
-      <div id="prompt-section" style="display:none">
+      <div id="prompt-section" style="display:block">
         <label data-i18n="prompt_text_label">参考音频内容文本</label>
         <input type="text" id="prompt-text" data-i18n-placeholder="prompt_text_ph" placeholder="参考音频的文字内容 …">
         <div style="margin-top:6px"><button class="btn btn-sm btn-outline" onclick="autoTranscribe()" data-i18n="asr_btn">🔍 自动识别 (ASR)</button></div>
@@ -500,7 +500,7 @@ function applyI18n() {
   htmls.forEach(function(el) { var k = el.getAttribute("data-i18n-html"); if (k) el.innerHTML = t(k); });
 }
 
-var voiceData=[],ultimateOn=false,asrRunning=false,currentRefFile=null,lastDesignCacheKey=null;
+var voiceData=[],ultimateOn=true,asrRunning=false,currentRefFile=null,lastDesignCacheKey=null;
 
 function setStatus(s){var e=document.getElementById("status");if(e)e.textContent=s}
 

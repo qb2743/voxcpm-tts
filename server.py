@@ -70,6 +70,7 @@ OPENAI_PLACEHOLDER_VOICES = {
     "alloy", "ash", "ballad", "coral", "echo", "fable",
     "nova", "onyx", "sage", "shimmer", "verse",
 }
+VOICE_AUDIO_EXTS = (".wav", ".mp3", ".flac", ".m4a", ".aac", ".ogg")
 
 
 def _reload_config_if_changed():
@@ -132,6 +133,63 @@ def _voice_key_from_path(value: str) -> str:
     return Path(name).stem if Path(name).suffix else name
 
 
+def _voice_config_from_audio_path(ref_audio_path: Path, current_config: dict):
+    defaults = current_config.get("clone_defaults", current_config.get("defaults", {}))
+    try:
+        ref_audio = str(ref_audio_path.relative_to(BASE_DIR))
+    except ValueError:
+        ref_audio = str(ref_audio_path)
+    return {
+        "ref_audio": ref_audio,
+        "cfg_value": defaults.get("cfg_value", 2.5),
+        "dit_steps": defaults.get("dit_steps", 50),
+        "do_normalize": defaults.get("do_normalize", True),
+        "denoise": defaults.get("denoise", True),
+        "control_instruction": defaults.get("control_instruction", ""),
+        "use_prompt_text": False,
+        "prompt_text": "",
+        "type": "clone",
+    }
+
+
+def _find_voice_audio_by_name(voice_name: str) -> Path | None:
+    """Find a saved voice in voices/ by stem, so WebUI-created files work without API config sync."""
+    stem = _voice_key_from_path(voice_name)
+    if not stem:
+        return None
+
+    voices_dir = BASE_DIR / "voices"
+    if not voices_dir.exists():
+        return None
+
+    lowered = stem.lower()
+    for ext in VOICE_AUDIO_EXTS:
+        candidate = _case_insensitive_existing_path(voices_dir / f"{stem}{ext}")
+        if candidate.exists() and candidate.is_file():
+            return candidate
+
+    for child in voices_dir.iterdir():
+        if child.is_file() and child.suffix.lower() in VOICE_AUDIO_EXTS and child.stem.lower() == lowered:
+            return child
+    return None
+
+
+def _available_voice_names(current_config: dict | None = None) -> list[str]:
+    current_config = current_config or _reload_config_if_changed()
+    names = list((current_config.get("voices") or {}).keys())
+    seen = {name.lower() for name in names}
+
+    voices_dir = BASE_DIR / "voices"
+    if voices_dir.exists():
+        for child in sorted(voices_dir.iterdir(), key=lambda p: p.name.lower()):
+            if child.is_file() and child.suffix.lower() in VOICE_AUDIO_EXTS:
+                lowered = child.stem.lower()
+                if lowered not in seen:
+                    names.append(child.stem)
+                    seen.add(lowered)
+    return names
+
+
 def _get_voice_config(voice: str):
     """Accept configured voice names and path-like voice values from OpenAI-compatible clients."""
     current_config = _reload_config_if_changed()
@@ -148,19 +206,13 @@ def _get_voice_config(voice: str):
         if name.lower() == lowered:
             return name, voice_config
 
+    voice_audio_path = _find_voice_audio_by_name(voice_key)
+    if voice_audio_path is not None:
+        return voice_audio_path.stem, _voice_config_from_audio_path(voice_audio_path, current_config)
+
     ref_audio_path = _resolve_ref(voice)
     if ref_audio_path.exists() and ref_audio_path.is_file():
-        defaults = current_config.get("clone_defaults", current_config.get("defaults", {}))
-        return ref_audio_path.stem, {
-            "ref_audio": str(ref_audio_path),
-            "cfg_value": defaults.get("cfg_value", 2.5),
-            "dit_steps": defaults.get("dit_steps", 50),
-            "do_normalize": defaults.get("do_normalize", True),
-            "denoise": defaults.get("denoise", True),
-            "control_instruction": defaults.get("control_instruction", ""),
-            "use_prompt_text": False,
-            "prompt_text": "",
-        }
+        return ref_audio_path.stem, _voice_config_from_audio_path(ref_audio_path, current_config)
 
     if lowered in OPENAI_PLACEHOLDER_VOICES and voices:
         name = next(iter(voices))
@@ -358,7 +410,7 @@ async def root():
     return {
         "service": "VoxCPM2 OpenAI-compatible TTS API",
         "endpoints": ["/v1/audio/speech", "/v1/models"],
-        "voices": list(current_config.get("voices", {}).keys()),
+        "voices": _available_voice_names(current_config),
     }
 
 @app.get("/v1/models")
@@ -382,7 +434,7 @@ async def create_speech(req: SpeechRequest, request: Request):
     """
     voice_name, voice_config = _get_voice_config(req.voice)
     if voice_config is None:
-        available = list(config["voices"].keys())
+        available = _available_voice_names()
         raise HTTPException(
             status_code=400,
             detail={
