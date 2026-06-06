@@ -30,19 +30,25 @@ WebUI 默认监听 `0.0.0.0:5000`。在服务器或 Docker 中使用时，请通
 
 ## Windows 下载 Release 压缩包使用方法
 
-1. 打开 [Releases](https://github.com/qb2743/voxcpm-tts/releases/tag/v1.3) 页面，在 **Assets** 中下载 `voxcpm-tts-v1.3.zip`。
-2. 解压到英文路径目录，例如 `D:\Apps\voxcpm-tts-v1.3`。
-3. 确认电脑已安装 **Python 3.10 或更高版本**，并且安装时勾选 **Add Python to PATH**。
-4. 双击 `webui.bat` 启动 WebUI。首次启动会自动安装依赖，请耐心等待。
-5. 浏览器访问 `http://127.0.0.1:5000` 使用网页界面。
-6. 如果只想启动 OpenAI 兼容 TTS API，双击 `start.bat`，服务地址为 `http://localhost:7900`。
+普通 Windows 用户请优先下载 **Windows 免 Python 便携版**：
+
+`voxcpm-tts-v1.3-windows.zip`
+
+1. 打开 [Releases](https://github.com/qb2743/voxcpm-tts/releases/tag/v1.3) 页面，在 **Assets** 中下载 `voxcpm-tts-v1.3-windows.zip`。
+2. 解压到英文路径目录，例如 `D:\Apps\voxcpm-tts-v1.3-windows`。
+3. 双击 `voxcpm-webui.exe` 启动 WebUI。
+4. 程序启动后通常会自动打开浏览器；如果没有自动打开，请手动访问 `http://127.0.0.1:5000`。
+5. 如果只想启动 OpenAI 兼容 TTS API，双击 `voxcpm-server.exe`，服务地址为 `http://localhost:7900/v1/audio/speech`。
 
 注意：
 
-- 首次运行需要联网安装 Python 依赖。
-- 如需 MP3、Opus、AAC 等格式转换，请安装 ffmpeg。
-- 如果双击脚本闪退，请在压缩包目录空白处右键打开终端，运行 `webui.bat` 查看错误提示。
+- 这个便携版已经内置 Python 运行时和 Python 依赖，电脑无需另外安装 Python。
+- 语音生成仍然需要联网访问 VoxCPM2 在线服务。
+- 如需 MP3、Opus、AAC、FLAC 等格式转换，请安装 ffmpeg；WAV 输出不需要 ffmpeg。
+- 如果程序无法启动，请在解压目录空白处右键打开终端，运行 `voxcpm-webui.exe` 查看错误提示。
 - 示例音色文件已包含在 `voices/` 目录中，可按需替换或新增自己的参考音频。
+
+`voxcpm-tts-v1.3.zip` 是源码包，需要电脑已安装 Python 3.10+，首次运行会联网安装 `requirements.txt` 中的依赖。
 
 ## Docker Hub 安装
 
